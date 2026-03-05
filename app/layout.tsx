@@ -1,5 +1,6 @@
-import { Sidebar } from "@/components/common/sidebar";
 import "./globals.css";
+import { Sidebar } from "@/components/common/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
   children,
@@ -25,6 +26,7 @@ export default function RootLayout({
             <main className="flex-1 bg-slate-50/30 p-8">{children}</main>
           </div>
         </div>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

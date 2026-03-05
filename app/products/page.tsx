@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { Plus, Trash2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { 
   Form, 
@@ -22,9 +23,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { Product } from "@/types/product";
 
 // zod 스키마
@@ -41,7 +42,14 @@ const INITIAL_PRODUCTS: Product[] = [
 ];
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("my-products");
+      return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    }
+    return INITIAL_PRODUCTS;
+  });
+
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
@@ -56,10 +64,15 @@ export default function ProductsPage() {
     },
   });
 
-  // 등록 처리 함수
+  // 데이터 변경 시마다 LocalStorage에 저장
+  useEffect(() => {
+    localStorage.setItem("my-products", JSON.stringify(products));
+  }, [products]);
+
+  // 등록 처리 함수 + Toast
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const product: Product = {
-      id: crypto.randomUUID(), 
+      id: crypto.randomUUID(),
       ...values,
       stock: 0,
       status: "판매중",
@@ -69,12 +82,16 @@ export default function ProductsPage() {
     setProducts([product, ...products]);
     form.reset();
     setOpen(false);
+    
+    toast.success("상품이 등록되었습니다.");
   };
 
   // 삭제 함수
   const handleDeleteProduct = (id: string) => {
     if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
     setProducts(products.filter((product) => product.id !== id));
+
+    toast.error("상품이 삭제되었습니다.");
   };
 
   // 상태 변경 토글 함수
@@ -86,6 +103,8 @@ export default function ProductsPage() {
         : product
       )
     );
+
+    toast.success("상태가 변경되었습니다.");
   };
 
   // 가격 수정 완료 함수
@@ -101,6 +120,8 @@ export default function ProductsPage() {
       )
     );
     setEditingId(null);
+
+    toast.info("가격이 수정되었습니다.");
   };
 
   return (
