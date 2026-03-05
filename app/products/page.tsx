@@ -1,28 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types/product";
 
 // 나중에 DB에서 가져올 가짜 데이터
-const products: Product[] = [
+const INITIAL_PRODUCTS: Product[] = [
   {
     id: "1",
     name: "맥북 프로 14 M3",
@@ -44,6 +33,32 @@ const products: Product[] = [
 ];
 
 export default function ProductsPage() {
+  // 1. 상품 리스트를 상태(State)로 관리합니다.
+  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+
+  // 2. 입력 폼의 상태를 관리합니다.
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    category: "",
+  });
+
+  // 3. 등록 함수
+  const handleAddProduct = () => {
+    const product: Product = {
+      id: Math.random().toString(36).substring(2, 9), // 임시 ID 생성
+      name: newProduct.name,
+      price: Number(newProduct.price),
+      category: newProduct.category,
+      stock: 0,
+      status: "판매중",
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+
+    setProducts([product, ...products]); // 기존 리스트 앞에 추가 (불변성 유지!)
+    setNewProduct({ name: "", price: "", category: "" }); // 입력창 초기화
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -66,19 +81,35 @@ export default function ProductsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">상품명</Label>
-                <Input id="name" placeholder="상품 이름을 입력하세요" />
+                <Input 
+                  id="name" 
+                  placeholder="상품 이름을 입력하세요" 
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="price">가격</Label>
-                <Input id="price" type="number" placeholder="0" />
+                <Input 
+                  id="price" 
+                  type="number" 
+                  placeholder="0" 
+                  value={newProduct.price}
+                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="category">카테고리</Label>
-                <Input id="category" placeholder="카테고리 선택" />
+                <Input 
+                  id="category" 
+                  placeholder="카테고리 선택" 
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">등록하기</Button>
+              <Button onClick={handleAddProduct}>등록하기</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
