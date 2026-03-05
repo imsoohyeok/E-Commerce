@@ -75,6 +75,17 @@ export default function ProductsPage() {
     setProducts(products.filter((product) => product.id !== id));
   };
 
+  // 상태 변경 토글 함수
+  const handleStatusToggle = (id: string) => {
+  setProducts(
+    products.map((product) =>
+      product.id === id
+        ? { ...product, status: product.status === "판매중" ? "품절" : "판매중" }
+        : product
+      )
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -167,7 +178,11 @@ export default function ProductsPage() {
                 <TableCell>{product.price.toLocaleString()}원</TableCell>
                 <TableCell>{product.stock}개</TableCell>
                 <TableCell>
-                  <Badge variant={product.status === "판매중" ? "default" : "destructive"}>
+                  <Badge 
+                    onClick={() => handleStatusToggle(product.id)}
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    variant={product.status === "판매중" ? "default" : "destructive"}
+                  >
                     {product.status}
                   </Badge>
                 </TableCell>
