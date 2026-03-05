@@ -43,6 +43,8 @@ const INITIAL_PRODUCTS: Product[] = [
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
 
   // 폼 초기화 (react-hook-form)
   const form = useForm({
@@ -84,6 +86,21 @@ export default function ProductsPage() {
         : product
       )
     );
+  };
+
+  // 가격 수정 완료 함수
+  const handlePriceUpdate = (id: string) => {
+    if (editValue < 100) {
+      alert("가격은 최소 100원 이상이어야 합니다.");
+      return;
+    }
+
+    setProducts(
+      products.map((product) =>
+        product.id === id ? { ...product, price: editValue } : product
+      )
+    );
+    setEditingId(null);
   };
 
   return (
@@ -175,7 +192,40 @@ export default function ProductsPage() {
               <TableRow key={product.id}>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.category}</TableCell>
-                <TableCell>{product.price.toLocaleString()}원</TableCell>
+                <TableCell>
+                  {editingId === product.id ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        className="h-8 w-28"
+                        value={editValue}
+                        onChange={(e) => setEditValue(Number(e.target.value))}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handlePriceUpdate(product.id);
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
+                        autoFocus
+                      />
+                      <Button 
+                        size="sm" 
+                        className="h-8 px-2" 
+                        onClick={() => handlePriceUpdate(product.id)}
+                      >
+                        저장
+                      </Button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="cursor-pointer hover:bg-slate-100 p-1 rounded-md transition-colors inline-block"
+                      onClick={() => {
+                        setEditingId(product.id);
+                        setEditValue(product.price);
+                      }}
+                    >
+                      {product.price.toLocaleString()}원
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell>{product.stock}개</TableCell>
                 <TableCell>
                   <Badge 
