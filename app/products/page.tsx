@@ -1,62 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogFooter 
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types/product";
 
-// 나중에 DB에서 가져올 가짜 데이터
+// zod 스키마
+const formSchema = z.object({
+  name: z.string().min(2, "상품명은 2글자 이상이어야 합니다."),
+  price: z.coerce.number().min(100, "가격은 최소 100원 이상이어야 합니다."),
+  category: z.string().min(1, "카테고리를 입력해주세요."),
+});
+
+// 더미 데이터
 const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "맥북 프로 14 M3",
-    category: "전자기기",
-    price: 2990000,
-    stock: 15,
-    status: "판매중",
-    createdAt: "2024-03-20",
-  },
-  {
-    id: "2",
-    name: "로지텍 MX Master 3S",
-    category: "주변기기",
-    price: 159000,
-    stock: 0,
-    status: "품절",
-    createdAt: "2024-03-19",
-  },
+  { id: "1", name: "맥북 프로 14 M3", category: "전자기기", price: 2990000, stock: 15, status: "판매중", createdAt: "2024-03-20" },
+  { id: "2", name: "로지텍 MX Master 3S", category: "주변기기", price: 159000, stock: 0, status: "품절", createdAt: "2024-03-19" },
 ];
 
 export default function ProductsPage() {
-  // 1. 상품 리스트를 상태(State)로 관리합니다.
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [open, setOpen] = useState(false); // 모달 열림/닫힘 상태
 
-  // 2. 입력 폼의 상태를 관리합니다.
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    category: "",
+  // 2. 폼 초기화 (react-hook-form)
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      price: 0,
+      category: "",
+    },
   });
 
-  // 3. 등록 함수
-  const handleAddProduct = () => {
+  // 3. 등록 처리 함수
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     const product: Product = {
-      id: Math.random().toString(36).substring(2, 9), // 임시 ID 생성
-      name: newProduct.name,
-      price: Number(newProduct.price),
-      category: newProduct.category,
+      id: crypto.randomUUID(), 
+      ...values,
       stock: 0,
       status: "판매중",
       createdAt: new Date().toISOString().split("T")[0],
     };
 
-    setProducts([product, ...products]); // 기존 리스트 앞에 추가 (불변성 유지!)
-    setNewProduct({ name: "", price: "", category: "" }); // 입력창 초기화
+    setProducts([product, ...products]);
+    form.reset();
+    setOpen(false);
   };
 
   return (
@@ -68,7 +78,7 @@ export default function ProductsPage() {
         </div>
         
         {/* 상품 등록 모달 시작 */}
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="flex gap-2">
               <Plus className="h-4 w-4" /> 상품 등록
@@ -78,39 +88,53 @@ export default function ProductsPage() {
             <DialogHeader>
               <DialogTitle>새 상품 등록</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">상품명</Label>
-                <Input 
-                  id="name" 
-                  placeholder="상품 이름을 입력하세요" 
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>상품명</FormLabel>
+                      <FormControl><Input placeholder="상품명을 입력하세요" {...field} /></FormControl>
+                      <FormMessage /> {/* ← 에러 메시지가 여기 뜹니다! */}
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="price">가격</Label>
-                <Input 
-                  id="price" 
-                  type="number" 
-                  placeholder="0" 
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>가격</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="0"
+                          {...field}
+                          value={field.value as number} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="category">카테고리</Label>
-                <Input 
-                  id="category" 
-                  placeholder="카테고리 선택" 
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>카테고리</FormLabel>
+                      <FormControl><Input placeholder="카테고리 선택" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleAddProduct}>등록하기</Button>
-            </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit" className="w-full">등록하기</Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </div>
