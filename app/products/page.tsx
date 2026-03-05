@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types/product";
@@ -42,9 +42,9 @@ const INITIAL_PRODUCTS: Product[] = [
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [open, setOpen] = useState(false); // 모달 열림/닫힘 상태
+  const [open, setOpen] = useState(false);
 
-  // 2. 폼 초기화 (react-hook-form)
+  // 폼 초기화 (react-hook-form)
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +54,7 @@ export default function ProductsPage() {
     },
   });
 
-  // 3. 등록 처리 함수
+  // 등록 처리 함수
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const product: Product = {
       id: crypto.randomUUID(), 
@@ -69,6 +69,12 @@ export default function ProductsPage() {
     setOpen(false);
   };
 
+  // 삭제 함수
+  const handleDeleteProduct = (id: string) => {
+    if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
+    setProducts(products.filter((product) => product.id !== id));
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -77,7 +83,7 @@ export default function ProductsPage() {
           <p className="text-muted-foreground">전체 상품 목록을 확인하고 관리합니다.</p>
         </div>
         
-        {/* 상품 등록 모달 시작 */}
+        {/* 상품 등록 모달 */}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="flex gap-2">
@@ -97,7 +103,7 @@ export default function ProductsPage() {
                     <FormItem>
                       <FormLabel>상품명</FormLabel>
                       <FormControl><Input placeholder="상품명을 입력하세요" {...field} /></FormControl>
-                      <FormMessage /> {/* ← 에러 메시지가 여기 뜹니다! */}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -150,6 +156,7 @@ export default function ProductsPage() {
               <TableHead>재고</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="text-right">등록일</TableHead>
+              <TableHead className="text-right">관리</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -165,6 +172,16 @@ export default function ProductsPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">{product.createdAt}</TableCell>
+                <TableCell className="text-right">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDeleteProduct(product.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
