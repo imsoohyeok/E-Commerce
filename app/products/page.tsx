@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from 'next/dynamic'
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Plus, Trash2 } from "lucide-react";
@@ -41,7 +42,7 @@ const INITIAL_PRODUCTS: Product[] = [
   { id: "2", name: "로지텍 MX Master 3S", category: "주변기기", price: 159000, stock: 0, status: "품절", createdAt: "2024-03-19" },
 ];
 
-export default function ProductsPage() {
+function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("my-products");
@@ -276,3 +277,7 @@ export default function ProductsPage() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(ProductsPage), {
+  ssr: false,
+});
