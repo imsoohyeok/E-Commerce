@@ -1,0 +1,83 @@
+// app/products/page.tsx
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Product } from "@/types/product";
+
+// 나중에 DB에서 가져올 가짜 데이터
+const products: Product[] = [
+  {
+    id: "1",
+    name: "맥북 프로 14 M3",
+    category: "전자기기",
+    price: 2990000,
+    stock: 15,
+    status: "판매중",
+    createdAt: "2024-03-20",
+  },
+  {
+    id: "2",
+    name: "로지텍 MX Master 3S",
+    category: "주변기기",
+    price: 159000,
+    stock: 0,
+    status: "품절",
+    createdAt: "2024-03-19",
+  },
+];
+
+export default function ProductsPage() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">상품 관리</h1>
+          <p className="text-muted-foreground">전체 상품 목록을 확인하고 관리합니다.</p>
+        </div>
+        <Button className="flex gap-2">
+          <Plus className="h-4 w-4" /> 상품 등록
+        </Button>
+      </div>
+
+      {/* 테이블 섹션 */}
+      <div className="rounded-md border bg-white">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>상품명</TableHead>
+              <TableHead>카테고리</TableHead>
+              <TableHead>가격</TableHead>
+              <TableHead>재고</TableHead>
+              <TableHead>상태</TableHead>
+              <TableHead className="text-right">등록일</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>{product.category}</TableCell>
+                <TableCell>{product.price.toLocaleString()}원</TableCell>
+                <TableCell>{product.stock}개</TableCell>
+                <TableCell>
+                  <Badge variant={product.status === "판매중" ? "default" : "destructive"}>
+                    {product.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">{product.createdAt}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
