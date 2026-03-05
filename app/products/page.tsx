@@ -1,6 +1,15 @@
-// app/products/page.tsx
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import {
   Table,
@@ -42,9 +51,37 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">상품 관리</h1>
           <p className="text-muted-foreground">전체 상품 목록을 확인하고 관리합니다.</p>
         </div>
-        <Button className="flex gap-2">
-          <Plus className="h-4 w-4" /> 상품 등록
-        </Button>
+        
+        {/* 상품 등록 모달 시작 */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="flex gap-2">
+              <Plus className="h-4 w-4" /> 상품 등록
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-106.25">
+            <DialogHeader>
+              <DialogTitle>새 상품 등록</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">상품명</Label>
+                <Input id="name" placeholder="상품 이름을 입력하세요" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="price">가격</Label>
+                <Input id="price" type="number" placeholder="0" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="category">카테고리</Label>
+                <Input id="category" placeholder="카테고리 선택" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">등록하기</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* 테이블 섹션 */}
