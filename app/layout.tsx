@@ -1,6 +1,13 @@
 import "./globals.css";
+import { Metadata } from "next";
 import { Sidebar } from "@/components/common/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+
+export const metadata: Metadata = {
+  title: "Shop Admin | 스마트한 쇼핑몰 관리",
+  description: "가장 빠르고 효율적인 쇼핑몰 대시보드 시스템입니다.",
+  keywords: ["쇼핑몰", "관리자", "대시보드", "Next.js"],
+};
 
 export default function RootLayout({
   children,

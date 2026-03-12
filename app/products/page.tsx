@@ -17,6 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Product } from "@/types/product";
 
+export const metadata = {
+  title: "상품 관리 | Shop Admin",
+  description: "판매 중인 상품 목록을 확인하고 새 상품을 등록하세요.",
+};
+
 // 무거운 폼 컴포넌트를 동적으로 불러옵니다.
 const HeavyProductForm = dynamic(() => import('@/components/products/ProductForm'), {
   loading: () => <div className="p-8 text-center text-muted-foreground animate-pulse">폼을 준비하는 중...</div>,
