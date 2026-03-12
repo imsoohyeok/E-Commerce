@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
+import bundleAnalyzer from '@next/bundle-analyzer';
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // 기존에 있던 설정들은 여기에 그대로 둡니다.
+  reactStrictMode: true, 
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

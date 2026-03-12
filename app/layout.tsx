@@ -1,6 +1,15 @@
 import "./globals.css";
+import { Metadata } from "next";
 import { Sidebar } from "@/components/common/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Shop Admin",
+    template: "%s | Shop Admin",
+  },
+  description: "스마트한 쇼핑몰 관리 시스템",
+};
 
 export default function RootLayout({
   children,

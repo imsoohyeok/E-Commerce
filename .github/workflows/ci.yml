@@ -29,3 +29,11 @@ jobs:
 
       - name: Build check
         run: npm run build # 빌드가 깨지지 않는지 확인 (가장 중요)
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci collect
+          lhci upload --target=temporary-public-storage
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
