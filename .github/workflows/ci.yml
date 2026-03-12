@@ -1,0 +1,31 @@
+name: CI Pipeline
+
+# 언제 이 작업을 실행할 것인가?
+on:
+  push:
+    branches: [main, devel] # 메인이나 개발 브랜치에 푸시될 때
+  pull_request:
+    branches: [main] # 메인으로 합쳐지기 전 PR 단계에서
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # 리눅스 환경에서 실행
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # 내 코드를 서버로 가져옴
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # 현재 프로젝트 노드 버전
+          cache: 'npm' # npm 캐시를 사용해 속도 업!
+
+      - name: Install dependencies
+        run: npm ci # package-lock.json을 기준으로 깔끔하게 설치
+
+      - name: Lint check
+        run: npm run lint # 아까 수정한 eslint 실행
+
+      - name: Build check
+        run: npm run build # 빌드가 깨지지 않는지 확인 (가장 중요)
