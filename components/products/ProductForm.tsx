@@ -34,7 +34,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSuccess)} className="space-y-4 py-4">
+      <form onSubmit={form.handleSubmit((data) => onSuccess(data))} className="space-y-4 py-4">
         <FormField
           control={form.control}
           name="name"
