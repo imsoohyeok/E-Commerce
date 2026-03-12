@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Product } from "@/types/product";
 
-// 🚨 핵심: 무거운 폼 컴포넌트를 동적으로 불러옵니다.
+// 무거운 폼 컴포넌트를 동적으로 불러옵니다.
 const HeavyProductForm = dynamic(() => import('@/components/products/ProductForm'), {
   loading: () => <div className="p-8 text-center text-muted-foreground animate-pulse">폼을 준비하는 중...</div>,
   ssr: false, 
@@ -29,7 +29,7 @@ const INITIAL_PRODUCTS: Product[] = [
   { id: "2", name: "로지텍 MX Master 3S", category: "주변기기", price: 159000, stock: 0, status: "품절", createdAt: "2024-03-19" },
 ];
 
-export default function ProductsPage() {
+function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("my-products");
@@ -203,3 +203,7 @@ export default function ProductsPage() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(ProductsPage), {
+  ssr: false,
+});
