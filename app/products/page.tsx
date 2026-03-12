@@ -95,7 +95,7 @@ function ProductsPage() {
     toast.error("상품이 삭제되었습니다.");
   };
 
-  // 상태 변경 토글 함수
+  // 판매 상태 변경 토글 함수
   const handleStatusToggle = (id: string) => {
   setProducts(
     products.map((product) =>
