@@ -21,7 +21,10 @@ const saveDB = (data: Product[]) => {
 
 export const handlers = [
   // 데이터 조회
-  http.get('/api/products', () => HttpResponse.json(products)),
+  http.get('/api/products', () => {
+    const currentProducts = getDB();
+    return HttpResponse.json(currentProducts);
+  }),
 
   // 데이터 추가
   http.post('/api/products', async ({ request }) => {
@@ -35,7 +38,8 @@ export const handlers = [
       stock: 0
     };
 
-    products = [newProduct, ...products];
+    const currentProducts = getDB();
+    products = [newProduct, ...currentProducts];
     saveDB(products);
     return HttpResponse.json(newProduct, { status: 201 });
   }),
@@ -45,7 +49,8 @@ export const handlers = [
     const { id } = params;
     const updates = (await request.json()) as Partial<Product>;
     
-    products = products.map(p => p.id === id ? { ...p, ...updates } : p);
+    const currentProducts = getDB();
+    products = currentProducts.map(p => p.id === id ? { ...p, ...updates } : p);
     saveDB(products);
     
     const updatedProduct = products.find(p => p.id === id);
@@ -55,7 +60,8 @@ export const handlers = [
   // 데이터 삭제
   http.delete('/api/products/:id', ({ params }) => {
     const { id } = params;
-    products = products.filter(p => p.id !== id);
+    const currentProducts = getDB();
+    products = currentProducts.filter(p => p.id !== id);
     saveDB(products);
     return new HttpResponse(null, { status: 204 });
   }),
